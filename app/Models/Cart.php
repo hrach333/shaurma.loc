@@ -12,6 +12,7 @@ class Cart extends Model
         'user_id', // ID пользователя, если корзина привязана к пользователю
         'product_id', // ID товара
         'quantity', // Количество товара
+        'session_id'
     ];
 
     public function product()

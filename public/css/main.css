@@ -564,6 +564,7 @@ td, th {
 .text-home {
     color: white;
     text-shadow: 2px 3px 4px #454545;
+    margin-top: 475px;
 }
 .text-italic {
   font-style: italic;
@@ -2812,4 +2813,15 @@ primary-btn {
 }
 .product-container {
     position: relative;
+}
+.cart-item {
+    width:20px;
+    height:20px;
+    background-color: #0d18e6;
+    color: white;
+    border-radius:50%;
+    text-align: center;
+    margin-top:-15px;
+    position: absolute;
+    z-index: 10;
 }

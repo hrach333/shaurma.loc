@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx" class="no-js">
+<html lang="ru" class="no-js">
 <head>
     <!-- Mobile Specific Meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -61,6 +61,7 @@
                     <li class="menu-active"><a href="#home">Главная</a></li>
                     <li><a href="#about">Продукция</a></li>
                     <li><a href="#coffee">О нас </a></li>
+                    <li><a href="{{asset('cart')}}"><img src="images/cart.png" width="32"><div class="cart-item">{{session('totalCartItems')}}</div></a></li>
                     <!--
                   <li class="menu-has-children"><a href="">Pages</a>
                     <ul>
@@ -134,7 +135,7 @@
                             {{$product->price}}₽
                         </p>
                     </div>
-                    <button type="button" class="button-brown">Добавить в карзину</button>
+                    <button type="button" class="button-brown" data-product-id="{{ $product->id }}">Добавить в карзину</button>
                 </div>
             </div>
             @endforeach
@@ -189,6 +190,33 @@
 <!-- End footer Area -->
 
 <script src="js/vendor/jquery-2.2.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $('.button-brown').on('click', function(e) {
+        e.preventDefault();
+        var productId = $(this).data('product-id');
+        console.log(productId);
+        $.ajax({
+            url: '{{route('cart.add')}}',
+            method: 'POST',
+            data: {
+                productId: productId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                // Обновление данных о корзине в интерфейсе
+                // Например, изменение количества товаров в иконке корзины
+                $('.cart-item').text(response.totalCartItems);
+            },
+            error: function(xhr, status, error) {
+                // Обработка ошибки
+                console.error(error);
+            }
+        });
+    });
+});
+
+    </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>

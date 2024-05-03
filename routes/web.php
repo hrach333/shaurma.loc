@@ -3,15 +3,14 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/logout', [AdminController::class, 'logout']);
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+Route::get('/home', [HomeController::class, 'index'] )->middleware(['auth', 'verified'])->name('dashboard');
+Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/admin/add-admin', [AdminController::class, 'setAdmin']);
