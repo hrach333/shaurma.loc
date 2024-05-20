@@ -8,13 +8,18 @@ use App\Models\Cart;
 class CartController extends Controller
 {
     //
-
-
+    public function viewCart(Request $request){
+        if (auth()->check()) {
+            $userId = auth()->id();
+            $cartItems = Cart::where('user_id', $userId)->paginate(10);
+            return view('cart', compact('cartItems'));
+        }
+    }
     public function addToCart(Request $request)
     {
            // Получаем id продукта из запроса
     $productId = $request->productId;
-    $sessionId = session()->getId();
+    $sessionId = session('id_token');
     // Проверяем, авторизован ли пользователь
     if (auth()->check()) {
         // Если пользователь авторизован, получаем его id
@@ -71,7 +76,7 @@ class CartController extends Controller
     // Получаем общее количество товаров в корзине
     $totalCartItems = auth()->check()
         ? Cart::where('user_id', auth()->id())->sum('quantity')
-        : Cart::where('session_id', session()->getId())->sum('quantity');
+        : Cart::where('session_id', session('id_token'))->sum('quantity');
 
     // Сохраняем общее количество товаров в сессию
     session()->put('totalCartItems', $totalCartItems);

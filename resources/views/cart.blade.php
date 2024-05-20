@@ -128,22 +128,8 @@
                 </div>
             </div>
             <div class="row">
-                @foreach ($products as $product)
-                    <div class="col-lg-4">
-                        <div class="single-menu">
-                            <div class="title-div justify-content-between d-flex">
-                                <div><img src="{{ asset('/img/' . $product->product_img) }}" width="210"
-                                        style="width: 100%"></div>
-                                <h4>{{ $product->product_name }}</h4>
+                @foreach ($cartItems as $item)
 
-                                <p class="price float-right">
-                                    {{ $product->price }}₽
-                                </p>
-                            </div>
-                            <button type="button" class="button-brown" data-product-id="{{ $product->id }}">Добавить в
-                                карзину</button>
-                        </div>
-                    </div>
                 @endforeach
                 <div class="col-lg-12 centr">
                     {{ $products->links('pagination::bootstrap-4') }}
