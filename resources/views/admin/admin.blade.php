@@ -12,6 +12,7 @@
                 <div class="menu-content pb-60 col-lg-10">
                     <div class="title text-center">
                         <h1 class="mb-10">Наша продукция</h1>
+
                         <!--<p>Who are in extremely love with eco friendly system.</p>-->
                     </div>
                 </div>
@@ -28,10 +29,12 @@
                                             <img src="{{ asset('images/plus.png') }}" alt="Добавить изображение">
                                         </button>
                                     </div>
-                                    <h4 class="product-name" id="product-name{{$product->id}}" data-id-good="{{ $product->id }}" contenteditable="true">{{ $product->product_name }}</h4>
-                                    <p class="price float-right" data-id-good="{{ $product->id }}" contenteditable="true">
+                                    <h4 class="product-name" data-field="product-name" id="product-name{{$product->id}}" data-id-good="{{ $product->id }}" contenteditable="true">{{ $product->product_name }}</h4>
+                                    <div id="product-description" data-field="description" data-id-good="{{ $product->id }}" contenteditable="true">{{ $product->description  }}</div>
+                                    <p class="price float-right" data-field="product-price" data-id-good="{{ $product->id }}" contenteditable="true">
                                         {{ $product->price }}₽
                                     </p>
+
                                     <button type="button" class="btn btn-danger" onclick="confirmDeleteProduct('{{ $product->id }}')">Удалить</button>
                                 </div>
                             </div>

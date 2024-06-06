@@ -11,6 +11,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/logout', [AdminController::class, 'logout']);
 Route::get('/home', [HomeController::class, 'index'] )->middleware(['auth', 'verified'])->name('dashboard');
 Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'viewCart'])->name('view.cart');
+Route::delete('/cart/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::get('/cart/count', [CartController::class, 'getItemCount']);
+Route::post('/cart/updateQuantity', [CartController::class,'updateQuantity'])->name('cart.updateQuantity');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/admin/add-admin', [AdminController::class, 'setAdmin']);

@@ -111,21 +111,15 @@
             $(".menu-title").click(function() {
                 $(this).next("ul").slideToggle();
             });
-            $('.product-name').on('blur', function() {
-                var title = $(this).html();
-                var ProductId = $(this).data('id-good');
-                // Получаем токен CSRF из мета-тега
+            // Общая функция для обработки AJAX запросов
+            function saveProductData(data) {
                 var csrfToken = $('meta[name="csrf-token"]').attr('content');
                 $.ajax({
                     url: '/admin/save_content',
                     method: 'POST',
-                    data: {
-                        content_id: ProductId,
-                        product_name: title,
-
-                    },
+                    data: data,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken // Передаем токен CSRF в заголовке запроса
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     success: function(response) {
                         console.log('Контент успешно сохранен!');
@@ -134,32 +128,22 @@
                         console.error(xhr.responseText);
                     }
                 });
+            }
+
+            // Обработчик для всех редактируемых полей
+            $('[contenteditable="true"]').on('blur', function() {
+                var field = $(this).data('field');
+                console.log(field);
+                var value = $(this).html().replace(/₽/g, '').trim();
+                var productId = $(this).data('id-good');
+                var data = {
+                    content_id: productId
+                };
+                data[field] = value;
+
+                saveProductData(data);
             });
-            $('.price.float-right').on('blur', function() {
-                var productPrice = $(this).html();
-                var price = productPrice.replace(/₽/g, '');
-                var ProductId = $(this).data('id-good');
-                var csrfToken = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: '/admin/save_content',
-                    method: 'POST',
-                    data: {
-                        content_id: ProductId,
-                        product_price: price,
 
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken // Передаем токен CSRF в заголовке запроса
-                    },
-                    success: function(response) {
-                        console.log('Контент успешно сохранен!');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
-
-            })
             $(document).on('click', '.add-button', function() {
 
                 // Создаем новый блок
@@ -202,29 +186,13 @@
                     }
                 });
             });
-            /**
-            $('.product-image').hover(function() {
-                if ($(this).attr('src') !== '{{ asset('img/default.png') }}') {
-                    $(this).next('.button-add-image').children('img').attr('src', '{{ asset('images/pencil.svg') }}');
-                } else {
-                    $(this).next('.button-add-image').children('img').attr('src', '{{ asset('images/plus.png') }}');
-                }
-                $(this).closest('.button-add-image').show();
-            }, function() {
-                if ($(this).attr('src') !== '{{ asset('img/default.png') }}') {
-                    $(this).next('.button-add-image').children('img').attr('src', '{{ asset('images/pencil.svg') }}');
-                } else {
-                    $(this).next('.button-add-image').children('img').attr('src', '{{ asset('images/plus.png') }}');
-                }
-                $(this).closest('.button-add-image').show();
-            });
-                **/
+
             $('.product-container').hover(function() {
-                console.log('this hover')
+                //console.log('this hover')
                 $(this).children('.button-add-image').show();
             }, function() {
                 $(this).children('.button-add-image').hide();
-                console.log('this function')
+                //console.log('this function')
             });
 
             if ($('.product-image').attr('src') !== '{{ asset('img/default.png') }}') {

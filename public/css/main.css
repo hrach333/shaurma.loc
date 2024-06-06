@@ -564,7 +564,6 @@ td, th {
 .text-home {
     color: white;
     text-shadow: 2px 3px 4px #454545;
-    margin-top: 475px;
 }
 .text-italic {
   font-style: italic;
@@ -2314,7 +2313,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 .banner-content {
-  margin-top: -350px;
+  margin-top: -475px;
 }
 
 .banner-content h1 {
@@ -2772,7 +2771,6 @@ primary-btn {
     border-radius: 5px;
     padding: 5px 10px;
     color: #fff;
-    margin-right: -235px;
 }
 .button-brown:hover {
     background: #695454;
@@ -2814,7 +2812,7 @@ primary-btn {
 .product-container {
     position: relative;
 }
-.cart-item {
+.cart-count {
     width:20px;
     height:20px;
     background-color: #0d18e6;
@@ -2824,4 +2822,143 @@ primary-btn {
     margin-top:-15px;
     position: absolute;
     z-index: 10;
+}
+.cart-item {
+    position: relative;
+    display: inline-block;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.cart-item img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.cart-item h6 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.cart-item .price {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.cart-item .price .l-through {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.cart-item .quantity {
+    font-size: 16px;
+    color: #555;
+}
+
+.cart-item:hover {
+    transform: translateY(-5px);
+}
+
+.cart-item .quantity-label {
+    font-weight: bold;
+}
+
+.centr {
+    text-align: center;
+    margin-top: 20px;
+}
+.price-total {
+    display: flex;
+    font-size: 16pt;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+
+}
+
+.price-total .total-amount {
+    display: flex;
+    align-items: center;
+}
+
+.price-total strong {
+
+    margin-right: 10px;
+}
+
+.price-total h6 {
+    font-size: 16pt;
+    margin: 0;
+}
+
+.text-description {
+    margin-bottom: 10px;
+}
+
+.cart-item .quantity-label {
+    margin-right: 10px;
+}
+
+.cart-item .quantity-decrease,
+.cart-item .quantity-increase {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.2s;
+}
+
+.cart-item .quantity-decrease:hover,
+.cart-item .quantity-increase:hover {
+    background-color: #0056b3;
+}
+
+.cart-item .quantity-input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.cart-item .remove-from-cart {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cart-item .remove-from-cart:hover {
+    background-color: #c82333;
+}
+
+/* Скрыть стрелки в input type="number" для всех браузеров */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }

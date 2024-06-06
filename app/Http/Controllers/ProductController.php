@@ -33,17 +33,20 @@ class ProductController extends Controller
     public function saveProduct(Request $request)
     {
         $productId = $request->input('content_id');
-        $newProduct = ($request->input('product_name') != null) ? $request->input('product_name'): '';
-        if ($request->input('product_price') !== null) {
-            $price = $request->input('product_price');
-        }
-        // Найдите модель контента по $contentId и обновите ее содержимое
+        // Получаем объект контента по $productId
         $content = Product::findOrFail($productId);
-        if ($newProduct != '') $content->product_name = $newProduct;
-
-        if (isset($price)){
-            $content->price = $price;
+        if ($request->input('product-name') !== null) {
+           $content->product_name = $request->input('product-name');
         }
+
+        if ($request->input('product-price') !== null) {
+            $content->price = $request->input('product-price');
+        }
+
+        if ($request->input('description') !== null) {
+            $content->description = $request->input('description');
+        }
+        //сохранение в БД
         $content->save();
 
         return response()->json(['success' => true]);
