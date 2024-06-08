@@ -3,20 +3,7 @@
 @section('title', 'Корзина')
 
 @section('content')
-    <!-- start banner Area -->
-    <section class="banner-area" id="home">
-        <div class="container">
-            <div class="row fullscreen d-flex align-items-center justify-content-start">
-                <div class="banner-content col-lg-7">
-                    <h2 style="color: #fff" class="text-home">
-                        Час Гурмана: Гастрономическое волшебство в каждом укусе! Наслаждайтесь праздником вместе с нами!
-                    </h2>
-                    <a href="#" class="primary-btn text-uppercase"></a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- End banner Area -->
+
 
     <!-- Start video-sec Area -->
     <section class="video-sec-area pb-100 pt-40" id="about">
@@ -73,7 +60,7 @@
                         <div class="total-amount">
                             <strong>Итого: </strong> &nbsp;<h6>{{ $priceTotal }}₽</h6>
                         </div>
-                        <button class="button-brown" id="checkout-btn">Оформить заказ</button>
+                        <a class="button-brown"  href="{{route('order.form')}}">Оформить заказ</a>
                     </div>
                 <div class="col-lg-12 centr">
                     {{ $cartItems->links('pagination::bootstrap-4') }}
@@ -109,25 +96,6 @@
                     }
                 });
             });
-            $('.button-brown').on('click', function(e) {
-                e.preventDefault();
-                var productId = $(this).data('product-id');
-                $.ajax({
-                    url: '{{ route('cart.add') }}',
-                    method: 'POST',
-                    data: {
-                        productId: productId,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        $('.cart-item').text(response.totalCartItems);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            });
-
             function updateCartCount() {
                 $.ajax({
                     url: '{{ url('/cart/count') }}',

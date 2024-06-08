@@ -3,20 +3,7 @@
 @section('title', 'Главная')
 
 @section('content')
-    <!-- start banner Area -->
-    <section class="banner-area" id="home">
-        <div class="container">
-            <div class="row fullscreen d-flex align-items-center justify-content-start">
-                <div class="banner-content col-lg-7">
-                    <h2 style="color: #fff" class="text-home">
-                        Час Гурмана: Гастрономическое волшебство в каждом укусе! Наслаждайтесь праздником вместе с нами!
-                    </h2>
-                    <a href="#" class="primary-btn text-uppercase"></a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- End banner Area -->
+
 
     <!-- Start video-sec Area -->
     <section class="video-sec-area pb-100 pt-40" id="about">

@@ -15,7 +15,7 @@
     <div class="container">
         <div class="row align-items-center justify-content-between d-flex">
             <div id="logo">
-                <a href="index.html"><img src="img/logo.png" alt="" title="" /></a>
+                <a href="index.html"><img src="{{asset('img/logo.png')}}" alt="" title="" /></a>
             </div>
             <nav id="nav-menu-container">
                 <ul class="nav-menu">
@@ -24,8 +24,17 @@
                     <li><a href="#coffee">О нас </a></li>
                     <li>
                         <a href="{{ asset('cart') }}">
-                            <img src="images/cart.png" width="32">
+                            <img src="{{asset('images/cart.png')}}" width="32">
                             <div class="cart-count">{{ session('totalCartItems') }}</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('user.details')}}">
+                            @if (auth()->check())
+                            <img src="{{asset('images/user.png')}}" width="32" alt="">
+                            @else
+                                Войти
+                            @endif
                         </a>
                     </li>
                 </ul>
