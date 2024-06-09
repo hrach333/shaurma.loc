@@ -3,73 +3,95 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use App\Models\Order;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    public function getSbpParticipants()
-    {
-        $shopId = env('YOOKASSA_SHOP_ID');
-        $secretKey = env('YOOKASSA_SECRET_KEY');
-
-        $response = Http::withBasicAuth($shopId, $secretKey)->get('https://api.yookassa.ru/v3/sbp-participants');
-
-        return $response->json();
-    }
-
     public function createPayment(Request $request)
     {
-        $method = $request->input('method');
         $shopId = env('YOOKASSA_SHOP_ID');
         $secretKey = env('YOOKASSA_SECRET_KEY');
-        $idempotenceKey = uniqid('', true); // Генерация уникального идемпотентного ключа
+        $description = 'Заказ №' . $request->order_id;
 
         $paymentData = [
             'amount' => [
-                'value' => '100.00', // Укажите сумму платежа
-                'currency' => 'RUB',
-            ],
-            'confirmation' => [
-                'type' => 'redirect',
-                'return_url' => url('/order/complete'), // URL для завершения платежа
+                'value' => number_format($request->total, 2, '.', ''),
+                'currency' => 'RUB'
             ],
             'capture' => true,
-            'description' => 'Оплата заказа',
+            'description' => $description
         ];
 
-        if ($method === 'card') {
-            $token = $request->input('token');
+        if ($request->payment_method == 'sbp') {
+            $paymentData['payment_method_data'] = [
+                'type' => 'sbp'
+            ];
+            $paymentData['confirmation'] = [
+                'type' => 'qr'
+            ];
+        } elseif ($request->payment_method == 'bank_card') {
             $paymentData['payment_method_data'] = [
                 'type' => 'bank_card',
                 'card' => [
-                    'token' => $token,
-                ],
-            ];
-        } elseif ($method === 'sbp') {
-            $participantId = $request->input('participantId');
-            $phone = $request->input('phone');
-            $paymentData['payment_method_data'] = [
-                'type' => 'sbp',
-                'phone' => $phone,
-                'participant_id' => $participantId
+                    'number' => $request->card_number,
+                    'expiry_month' => substr($request->card_expiry, 0, 2),
+                    'expiry_year' => substr($request->card_expiry, -2),
+                    'cvc' => $request->card_cvc
+                ]
             ];
         }
 
-        $response = Http::withBasicAuth($shopId, $secretKey)->withHeaders([
-            'Idempotence-Key' => $idempotenceKey, // Добавление идемпотентного ключа в заголовок
-        ])->post('https://api.yookassa.ru/v3/payments', $paymentData);
+        $response = Http::withBasicAuth($shopId, $secretKey)
+            ->withHeaders([
+                'Idempotence-Key' => uniqid('', true),
+                'Content-Type' => 'application/json'
+            ])
+            ->post('https://api.yookassa.ru/v3/payments', $paymentData);
 
-        $responseBody = $response->json();
+        // Логируем ответ для диагностики
+        Log::debug($response->body());
 
-        if (isset($responseBody['confirmation'])) {
-            return response()->json([
-                'status' => 'success',
-                'redirect_url' => $responseBody['confirmation']['confirmation_url']
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => $responseBody['description']
-            ]);
+        if ($response->failed()) {
+            // Логируем ошибку
+            Log::error('Ошибка при создании платежа: ' . $response->body());
+
+            // Возвращаем ошибку клиенту
+            return response()->json(['error' => 'Не удалось создать платеж. Пожалуйста, свяжитесь с поддержкой.'], 500);
         }
+
+        $data = $response->json();
+
+        return response()->json($data);
+    }
+
+    public function checkPaymentStatus(Request $request)
+    {
+        $paymentId = $request->input('paymentId');
+        $shopId = env('YOOKASSA_SHOP_ID');
+        $secretKey = env('YOOKASSA_SECRET_KEY');
+
+        $response = Http::withBasicAuth($shopId, $secretKey)
+            ->withHeaders([
+                'Content-Type' => 'application/json'
+            ])
+            ->get("https://api.yookassa.ru/v3/payments/{$paymentId}");
+
+        // Логируем ответ для диагностики
+        Log::debug($response->body());
+
+        if ($response->failed()) {
+            // Логируем ошибку
+            Log::error('Ошибка при проверке статуса платежа: ' . $response->body());
+
+            // Возвращаем ошибку клиенту
+            return response()->json(['error' => 'Не удалось проверить статус платежа. Пожалуйста, свяжитесь с поддержкой.'], 500);
+        }
+
+        $data = $response->json();
+
+        return response()->json($data);
     }
 }

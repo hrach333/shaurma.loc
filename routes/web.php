@@ -38,12 +38,11 @@ Route::post('/cart/updateQuantity', [CartController::class, 'updateQuantity'])->
 Route::get('/order', [OrderController::class, 'showForm'])->name('order.form');
 Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
 
-// Список участников СБП
-Route::get('/payment/sbp/participants', [PaymentController::class, 'getSbpParticipants'])->name('payment.sbp.participants');
 
 // Создание платежа
 Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
-
+// Проверка статуса платежа
+Route::get('/payment/status', [PaymentController::class, 'checkPaymentStatus'])->name('payment.status');
 // Завершение заказа
 Route::get('/order/complete', [OrderController::class, 'complete'])->name('order.complete');
 
