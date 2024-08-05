@@ -3,159 +3,152 @@
 @section('content')
     <div class="container">
         <h2>Оформление заказа</h2>
-        <form id="orderForm" action="{{ route('order.create') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="name">Имя</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+
+        <form id="order-form">
+            <div class="user-details-section">
+                <h4>Контактная информация</h4>
+                <div class="form-group">
+                    <label for="full_name">ФИО</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" value="{{ auth()->check() ? auth()->user()->details->full_name : '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" class="form-control" id="email" name="email" value="{{ auth()->check() ? auth()->user()->email : '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ auth()->check() ? auth()->user()->details->phone : '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="address">Адрес доставки</label>
+                    <input type="text" class="form-control" id="address" name="address" value="{{ auth()->check() ? auth()->user()->details->address : '' }}">
+                </div>
+                <button type="button" class="btn btn-primary" id="next-step">Далее</button>
             </div>
-            <div class="form-group">
-                <label for="address">Адрес</label>
-                <input type="text" class="form-control" id="address" name="address" required>
+
+            <div class="payment-method-section" style="display:none;">
+                <h4>Выберите способ оплаты</h4>
+                <div class="form-group">
+                    <button type="button" class="btn btn-outline-primary payment-method" data-method="bank_card">
+                        <img src="{{ asset('images/card.png') }}" alt="Оплата картой">
+                    </button>
+                    <button type="button" class="btn btn-outline-primary payment-method" data-method="sbp">
+                        <img src="{{ asset('images/sbp.jpg') }}" alt="Система быстрых платежей" style="border-radius: 15px;">
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="phone">Телефон</label>
-                <input type="text" class="form-control" id="phone" name="phone" required>
+            <div id="payment-details" style="display:none;">
+                <h3>Введите данные банковской карты</h3>
+                <div class="credit-card-form">
+                <div class="form-group">
+                    <label for="card-number">Номер карты</label>
+                    <input type="text" class="form-control" id="card-number" name="card_number" maxlength="19" placeholder="XXXX XXXX XXXX XXXX">
+                </div>
+                <div class="form-group">
+                    <label for="card-expiry">Дата истечения срока действия</label>
+                    <input type="text" class="form-control" id="card-expiry" name="card_expiry" placeholder="MM/YY">
+                </div>
+                <div class="form-group">
+                    <label for="card-cvc">CVC</label>
+                    <input type="password" class="form-control" id="card-cvc" name="cvc" maxlength="3" placeholder="CVC">
+                </div>
+
+                <button type="button" id="pay-button" class="btn btn-primary">Оплатить</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="total">Сумма заказа</label>
-                <input type="text" class="form-control" id="total" name="total" value="{{ $total }}" readonly>
-            </div>
-            <div class="form-group">
-                <label for="payment_method">Способ оплаты</label>
-                <select class="form-control" id="payment_method" name="payment_method" required>
-                    <option value="bank_card">Банковская карта</option>
-                    <option value="sbp">Система быстрых платежей (СБП)</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Оформить заказ</button>
         </form>
-
-        <div id="paymentSection" style="display: none;">
-            <h2>Оплата заказа</h2>
-            <button id="payWithSbp" class="btn btn-success" style="display: none;">Оплатить через СБП</button>
-            <div id="cardPaymentForm" style="display: none;">
-                <!-- Форма для ввода данных карты -->
-                <div class="form-group">
-                    <label for="card_number">Номер карты</label>
-                    <input type="text" class="form-control" id="card_number" name="card_number" required>
-                </div>
-                <div class="form-group">
-                    <label for="card_expiry">Срок действия карты</label>
-                    <input type="text" class="form-control" id="card_expiry" name="card_expiry" required>
-                </div>
-                <div class="form-group">
-                    <label for="card_cvc">CVC</label>
-                    <input type="text" class="form-control" id="card_cvc" name="card_cvc" required>
-                </div>
-                <button id="payWithCard" class="btn btn-success">Оплатить картой</button>
-            </div>
-        </div>
-
-        <div id="qrCodeSection" style="display: none;">
-            <h2>Сканируйте QR-код для оплаты</h2>
-            <img id="qrCodeImage" src="" alt="QR-код для оплаты">
-        </div>
+        <div id="info"></div>
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function() {
-            $('#orderForm').on('submit', function(e) {
-                e.preventDefault();
+            $('#next-step').click(function() {
+                $('.user-details-section').hide();
+                $('.payment-method-section').show();
+            });
 
-                var formData = $(this).serialize();
-                var paymentMethod = $('#payment_method').val();
+            $('.payment-method').click(function() {
+                var method = $(this).data('method');
+                if (method === 'bank_card') {
+                    // Показать форму для ввода данных банковской карты
+                    showBankCardForm();
+                } else if (method === 'sbp') {
+                    // Показать QR-код для оплаты через СБП
+                    processSbpPayment();
+                }
+            });
+
+            function showBankCardForm() {
+                var payment_details = $('#payment-details');
+                //console.log(payment_details.length);
+                if (payment_details.is(":hidden")) {
+                    $('#payment-details').show();
+                } else {
+                    $('#payment-details').hide();
+                }
+
+            }
+            $('#pay-button').on('click', function (){
+                var total = {{$total}};
+                var formData = $('#order-form').serialize();
+                var token = '{{ csrf_token() }}';
+                //console.log(formData);
 
                 $.ajax({
                     url: '{{ route('order.create') }}',
                     method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        $('#orderForm').hide();
-                        $('#paymentSection').show();
+                    data: formData + '&total=' + total + '&_token=' + token,
 
-                        if (paymentMethod === 'sbp') {
-                            $('#payWithSbp').show();
-                        } else {
-                            $('#cardPaymentForm').show();
-                        }
+                    success: function(response) {
+                        console.log(response);
+                        console.log(response.url);
+                        //let data = JSON.parse(response);
+                        //$('#info').html('<a href="' +data.url + '">Перейти для подтверждение</a>');
                     },
                     error: function(xhr, status, error) {
-                        console.error('Ошибка при оформлении заказа:', error);
+                        console.error(error);
                     }
+                });
+
+            })
+
+            function processSbpPayment() {
+                // Реализация процесса оплаты через СБП
+            }
+
+            $('#card-number').on('input', function() {
+                var value = $(this).val().replace(/\D/g, '').substring(0, 16); // Keep only digits and limit to 16 digits
+                var formattedValue = value.match(/.{1,4}/g)?.join(' ') || ''; // Add spaces every 4 digits
+                $(this).val(formattedValue);
+            });
+
+            // Format expiry date input
+            $('#card-expiry').datepicker({
+                dateFormat: "mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                onClose: function(dateText, inst) {
+                    var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                    var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                    $(this).val($.datepicker.formatDate('mm/yy', new Date(year, month, 1)));
+                }
+            });
+
+            $("#card-expiry").focus(function() {
+                $(".ui-datepicker-calendar").hide();
+                $("#ui-datepicker-div").position({
+                    my: "center top",
+                    at: "center bottom",
+                    of: $(this)
                 });
             });
 
-            $('#payWithSbp').on('click', function() {
-                var total = $('#total').val();
 
-                $.ajax({
-                    url: '{{ route('payment.create') }}',
-                    method: 'POST',
-                    data: {
-                        total: total,
-                        payment_method: 'sbp',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        $('#paymentSection').hide();
-                        $('#qrCodeSection').show();
-                        $('#qrCodeImage').attr('src', response.confirmation.confirmation_data);
-
-                        // Периодически проверяем статус платежа
-                        var paymentId = response.id;
-                        var intervalId = setInterval(function() {
-                            $.ajax({
-                                url: '{{ route('payment.status') }}',
-                                method: 'GET',
-                                data: {
-                                    paymentId: paymentId
-                                },
-                                success: function(response) {
-                                    if (response.status === 'succeeded') {
-                                        clearInterval(intervalId);
-                                        alert('Платеж успешно завершен!');
-                                    }
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error('Ошибка при проверке статуса платежа:', error);
-                                }
-                            });
-                        }, 5000); // Проверяем каждые 5 секунд
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка при создании платежа:', error);
-                    }
-                });
-            });
-
-            $('#payWithCard').on('click', function() {
-                var total = $('#total').val();
-                var cardNumber = $('#card_number').val();
-                var cardExpiry = $('#card_expiry').val();
-                var cardCvc = $('#card_cvc').val();
-
-                $.ajax({
-                    url: '{{ route('payment.create') }}',
-                    method: 'POST',
-                    data: {
-                        total: total,
-                        payment_method: 'bank_card',
-                        card_number: cardNumber,
-                        card_expiry: cardExpiry,
-                        card_cvc: cardCvc,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        alert('Платеж успешно завершен!');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка при создании платежа:', error);
-                    }
-                });
-            });
         });
     </script>
-@endsection
+@endpush

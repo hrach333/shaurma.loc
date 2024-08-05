@@ -64,6 +64,13 @@ class PaymentController extends Controller
 
         $data = $response->json();
 
+        if ($request->payment_method == 'sbp') {
+            return response()->json([
+                'id' => $data['id'],
+                'confirmation' => $data['confirmation']['confirmation_url']
+            ]);
+        }
+
         return response()->json($data);
     }
 
